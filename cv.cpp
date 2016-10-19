@@ -26,16 +26,14 @@ void getBoundingRects(cv::Mat img) {
     cv::Mat thresh_img;
     threshold(grad_img, thresh_img, THRESHOLD_VALUE, 255, cv::THRESH_BINARY | cv::THRESH_OTSU);
 
-    cv::Mat connected;
-    kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(9, 1));
-    cv::morphologyEx(thresh_img, connected, cv::MORPH_CLOSE, kernel);
+    /*cv::Mat connected;
+    kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 1));
+    cv::morphologyEx(thresh_img, connected, cv::MORPH_CLOSE, kernel);*/
 
     cv::Mat mask = cv::Mat::zeros(thresh_img.size(), CV_8UC1);
     std::vector<std::vector<cv::Point> > contours;
     std::vector<cv::Vec4i> hierarchy;
-    cv::findContours(connected, contours, hierarchy, CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
-
-    std::vector<cv::Rect> test;
+    cv::findContours(thresh_img, contours, hierarchy, CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
 
     for (int idx = 0; idx >= 0; idx = hierarchy[idx][0]) {
 
@@ -53,9 +51,7 @@ void getBoundingRects(cv::Mat img) {
             cv::line(scaled_img, cv::Point((int)pts[i].x, (int)pts[i].y), cv::Point((int)pts[(i+1)%4].x, (int)pts[(i+1)%4].y), cv::Scalar(255,0,0));
         }
 
-        cv::Mat cropped = scaled_img(rrect.boundingRect());
-
-        show(cropped);
+        //cv::Mat cropped = scaled_img(rrect.boundingRect());
 
     }
 
