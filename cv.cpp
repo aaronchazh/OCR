@@ -20,11 +20,11 @@ void getBoundingRects(cv::Mat img) {
     cv::cvtColor(scaled_img, scaled_gray_img, CV_BGR2GRAY);
 
     cv::Mat grad_img;
-    cv::Mat kernel = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(3, 3));
+    cv::Mat kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
     cv::morphologyEx(scaled_gray_img, grad_img, cv::MORPH_GRADIENT, kernel);
 
     cv::Mat thresh_img;
-    threshold(grad_img, thresh_img, THRESHOLD_VALUE, 255, cv::THRESH_BINARY | cv::THRESH_OTSU);
+    threshold(grad_img, thresh_img, THRESHOLD_VALUE, 255, cv::THRESH_OTSU);
 
     /*cv::Mat connected;
     kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 1));
@@ -44,14 +44,17 @@ void getBoundingRects(cv::Mat img) {
         cv::RotatedRect rrect = cv::minAreaRect(contours[idx]);
         double r = (double) countNonZero(maskROI) / (rrect.size.width * rrect.size.height);
 
-        cv::Point2f pts[4];
-        rrect.points(pts);
+        if (rrect.size.width > 1 && rrect.size.height > 1) {
 
-        for (int i = 0; i < 4; i++) {
-            cv::line(scaled_img, cv::Point((int)pts[i].x, (int)pts[i].y), cv::Point((int)pts[(i+1)%4].x, (int)pts[(i+1)%4].y), cv::Scalar(255,0,0));
+            cv::Point2f pts[4];
+            rrect.points(pts);
+
+            for (int i = 0; i < 4; i++) {
+                cv::line(scaled_img, cv::Point((int)pts[i].x, (int)pts[i].y), cv::Point((int)pts[(i+1)%4].x, (int)pts[(i+1)%4].y), cv::Scalar(255,0,0));
+            }
+
+            //cv::Mat cropped = scaled_img(rrect.boundingRect());
         }
-
-        //cv::Mat cropped = scaled_img(rrect.boundingRect());
 
     }
 

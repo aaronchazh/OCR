@@ -1,6 +1,6 @@
 #include "cv.h"
 
-#define SRC_IMG "new.png"
+#define SRC_IMG "test.jpg"
 
 int main() {
 
