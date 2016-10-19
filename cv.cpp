@@ -10,9 +10,7 @@ void show(cv::Mat img, std::string windowName, int waitTime) {
 	cv::destroyWindow(windowName);
 }
 
-void getBoundingRects(cv::Mat img) {
-
-    cv::Mat orig_img = img;
+std::vector<cv::Mat> getBoundingBoxes(cv::Mat img) {
 
     cv::Mat scaled_img = img;
 
@@ -35,6 +33,8 @@ void getBoundingRects(cv::Mat img) {
     std::vector<cv::Vec4i> hierarchy;
     cv::findContours(thresh_img, contours, hierarchy, CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
 
+    std::vector<cv::Mat> bboxes;
+
     for (int idx = 0; idx >= 0; idx = hierarchy[idx][0]) {
 
         cv::Rect rect = cv::boundingRect(contours[idx]);
@@ -53,11 +53,26 @@ void getBoundingRects(cv::Mat img) {
                 cv::line(scaled_img, cv::Point((int)pts[i].x, (int)pts[i].y), cv::Point((int)pts[(i+1)%4].x, (int)pts[(i+1)%4].y), cv::Scalar(255,0,0));
             }
 
-            //cv::Mat cropped = scaled_img(rrect.boundingRect());
+            cv::Mat M, rotated, cropped;
+            float angle = rrect.angle;
+            cv::Size rrect_size = rrect.size;
+
+            if (rrect.angle < -45.) {
+
+                angle += 90.0;
+                std::swap(rrect_size.width, rrect_size.height);
+            }
+
+            M = cv::getRotationMatrix2D(rrect.center, angle, 1.0);
+            cv::warpAffine(scaled_img, rotated, M, scaled_img.size(), cv::INTER_CUBIC);
+            cv::getRectSubPix(rotated, rrect_size, rrect.center, cropped);
+
+            bboxes.push_back(cropped);
         }
 
     }
 
     cv::imwrite("cont.jpg", scaled_img);
+    return bboxes;
 
 }

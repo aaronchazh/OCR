@@ -20,6 +20,6 @@
 #include <string>
 
 void show(cv::Mat img, std::string windowName = "image", int waitTime = 0);
-void getBoundingRects(cv::Mat img);
+std::vector<cv::Mat> getBoundingBoxes(cv::Mat img);
 
 #endif
