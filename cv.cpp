@@ -14,9 +14,7 @@ void getBoundingRects(cv::Mat img) {
 
     cv::Mat orig_img = img;
 
-    cv::Mat scaled_img;
-    cv::pyrDown(img, scaled_img);
-    cv::pyrDown(scaled_img, scaled_img);
+    cv::Mat scaled_img = img;
 
     cv::Mat scaled_gray_img;
     cv::cvtColor(scaled_img, scaled_gray_img, CV_BGR2GRAY);
@@ -51,8 +49,13 @@ void getBoundingRects(cv::Mat img) {
         cv::Point2f pts[4];
         rrect.points(pts);
 
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 4; i++) {
             cv::line(scaled_img, cv::Point((int)pts[i].x, (int)pts[i].y), cv::Point((int)pts[(i+1)%4].x, (int)pts[(i+1)%4].y), cv::Scalar(255,0,0));
+        }
+
+        cv::Mat cropped = scaled_img(rrect.boundingRect());
+
+        show(cropped);
 
     }
 
