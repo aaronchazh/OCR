@@ -10,9 +10,21 @@ void show(cv::Mat img, std::string windowName, int waitTime) {
 	cv::destroyWindow(windowName);
 }
 
+bool compareRect(const cv::Rect r1, const cv::Rect r2) {
+
+    if (abs((r1.y + r1.size().height) - (r2.y + r2.size().height)) > 10) {
+
+        return (r1.y + r1.size().height) < (r2.y + r2.size().height);
+    }
+
+    return r1.x < r2.x;
+}
+
 std::vector<cv::Mat> getBoundingBoxes(cv::Mat img, int x1, int x2, int x3, int x4) {
 
     cv::Mat scaled_img = img;
+
+    std::cout << img.size() << std::endl;
 
     cv::Mat scaled_gray_img;
     cv::cvtColor(scaled_img, scaled_gray_img, CV_BGR2GRAY);
@@ -33,7 +45,7 @@ std::vector<cv::Mat> getBoundingBoxes(cv::Mat img, int x1, int x2, int x3, int x
     std::vector<cv::Vec4i> hierarchy;
     cv::findContours(connected, contours, hierarchy, CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
 
-    std::vector<cv::Mat> bboxes;
+    std::vector<cv::Rect> bRects;
 
     for (int idx = 0; idx >= 0; idx = hierarchy[idx][0]) {
 
@@ -76,16 +88,25 @@ std::vector<cv::Mat> getBoundingBoxes(cv::Mat img, int x1, int x2, int x3, int x
         */
 
         if (rect.size().width > 1 && rect.size().height > 1) {
-
+            
             cv::rectangle(scaled_img, rect, cv::Scalar(255,0,0));
-            bboxes.push_back(scaled_img(rect));
+            bRects.push_back(rect);
         }
 
     }
 
-    std::cout << bboxes.size() << std::endl;
-
     cv::imwrite("cont.jpg", scaled_img);
+
+    std::sort(bRects.begin(), bRects.end(), compareRect);
+    
+    std::vector<cv::Mat> bboxes(bRects.size());
+    for (int i = 0; i < bRects.size(); i++) {
+
+        std::cout << bRects[i].x << " ";
+        std::cout << bRects[i].y + bRects[i].size().height << std::endl;
+        bboxes[i] = scaled_img(bRects[i]);
+    }
+
     return bboxes;
 
 }

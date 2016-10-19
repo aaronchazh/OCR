@@ -1,6 +1,6 @@
 #include "cv.h"
 
-#define SRC_IMG "sig.jpg"
+#define SRC_IMG "sign.jpg"
 
 int main() {
 
@@ -13,6 +13,9 @@ int main() {
 	}
 
 	std::vector<cv::Mat> bboxes = getBoundingBoxes(img, 3, 3, 9, 1);
+
+	for (int i = 0; i < bboxes.size(); i++)
+		show(bboxes[i]);
 
 	return 0;
 }
