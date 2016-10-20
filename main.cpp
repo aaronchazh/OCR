@@ -12,10 +12,7 @@ int main() {
 		return 1;
 	}
 
-	std::vector<cv::Mat> bboxes = getBoundingBoxes(img, 3, 3, 9, 1);
-
-	for (int i = 0; i < bboxes.size(); i++)
-		show(bboxes[i]);
+	std::vector<cv::Mat> bboxes = getBoundingBoxes(img, 2, 2, 9, 1);
 
 	return 0;
 }
