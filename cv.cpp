@@ -37,8 +37,11 @@ double correlation(cv::Mat image1, cv::Mat image2) {
     cv::Mat scaled_gray_img2;
     cv::cvtColor(image2, scaled_gray_img2, CV_BGR2GRAY);
 
+    cv::Mat thresh_img_temp2;
+    threshold(scaled_gray_img2, thresh_img_temp2, THRESHOLD_VALUE, 255, cv::THRESH_OTSU);
+
     cv::Mat thresh_img2;
-    threshold(scaled_gray_img2, thresh_img2, THRESHOLD_VALUE, 255, cv::THRESH_OTSU);
+    cv::bitwise_not(thresh_img_temp2, thresh_img2);
     
     int n_pixels = thresh_img1.rows * thresh_img1.cols;
 
@@ -117,7 +120,7 @@ std::vector<cv::Mat> getBoundingBoxes(const cv::Mat &img, int x1, int x2, int x3
         }
         */
 
-        if (rect.size().width > 1 && rect.size().height > 1) {
+        if (rect.size().width > 30 && rect.size().height > 30) {
 
             cv::rectangle(scaled_img, rect, cv::Scalar(255,0,0));
             bRects.push_back(rect);
@@ -133,7 +136,7 @@ std::vector<cv::Mat> getBoundingBoxes(const cv::Mat &img, int x1, int x2, int x3
         bboxes[i] = img(rect_nobox);
     }
 
-    std::cout << bboxes.size() << std::endl;
+    show(scaled_img);
 
     return bboxes;
 
@@ -145,11 +148,13 @@ std::string getCharacter(const cv::Mat img) {
                                 "F", "G", "H", "I", "J",
                                 "K", "L", "M", "N", "O",
                                 "P", "Q", "R", "S", "T",
-                                "U", "V", "X", "Y", "Z",
+                                "U", "V", "W", "X", "Y", "Z",
                                 "0", "1", "2", "3", "4",
                                 "5", "6", "7", "8", "9"};
 
-    std::string imgFold = "letters_numbers/"; 
+    std::string imgFold = "letters_numbers/";
+
+    std::vector<double> correlations;
 
     for (int i = 0; i < NUM_CHARACTERS; i++) {
 
@@ -158,9 +163,23 @@ std::string getCharacter(const cv::Mat img) {
         path << characters[i];
         path << ".bmp";
 
-        cv::Mat character = cv::imread(path);
+        cv::Mat character = cv::imread(path.str());
+
+        correlations.push_back(correlation(img, character));
     }
 
-    return "k";
+    double max = 0;
+    int maxIdx;
+
+    for (int i = 0; i < correlations.size(); i++) {
+
+        if(correlations[i] > max) {
+
+            max = correlations[i];
+            maxIdx = i;
+        }
+    }
+
+    return characters[maxIdx];
 
 }
