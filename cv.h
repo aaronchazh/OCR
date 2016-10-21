@@ -19,10 +19,12 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include <sstream>
 
 void show(const cv::Mat &img, std::string windowName = "image", int waitTime = 0);
 std::vector<cv::Mat> getBoundingBoxes(const cv::Mat &img, int x1, int x2, int x3, int x4);
 bool compareRect(const cv::Rect &r1, const cv::Rect &r2);
-double correlation(const cv::Mat &image_1, const cv::Mat &image_2);
+double correlation(cv::Mat image_1, cv::Mat image_2);
+std::string getCharacter(const cv::Mat img);
 
 #endif

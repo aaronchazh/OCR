@@ -1,6 +1,7 @@
 #include "cv.h"
 
 #define THRESHOLD_VALUE 0
+#define NUM_CHARACTERS 36
 
 void show(const cv::Mat &img, std::string windowName, int waitTime) {
 
@@ -20,20 +21,32 @@ bool compareRect(const cv::Rect &r1, const cv::Rect &r2) {
     return r1.x < r2.x;
 }
 
-double correlation(const cv::Mat &image_1, const cv::Mat &image_2) {
+double correlation(cv::Mat image1, cv::Mat image2) {
 
-    cv::Mat im_float_1;
-    image_1.convertTo(im_float_1, CV_32F);
-    cv::Mat im_float_2;
-    image_2.convertTo(im_float_2, CV_32F);
+    cv::Size scaleSize = image2.size();
 
-    int n_pixels = im_float_1.rows * im_float_1.cols;
+    cv::Mat scaled_img;
+    cv::resize(image1, scaled_img, scaleSize);
+
+    cv::Mat scaled_gray_img1;
+    cv::cvtColor(scaled_img, scaled_gray_img1, CV_BGR2GRAY);
+
+    cv::Mat thresh_img1;
+    threshold(scaled_gray_img1, thresh_img1, THRESHOLD_VALUE, 255, cv::THRESH_OTSU);
+
+    cv::Mat scaled_gray_img2;
+    cv::cvtColor(image2, scaled_gray_img2, CV_BGR2GRAY);
+
+    cv::Mat thresh_img2;
+    threshold(scaled_gray_img2, thresh_img2, THRESHOLD_VALUE, 255, cv::THRESH_OTSU);
+    
+    int n_pixels = thresh_img1.rows * thresh_img1.cols;
 
     cv::Scalar im1_Mean, im1_Std, im2_Mean, im2_Std;
-    meanStdDev(im_float_1, im1_Mean, im1_Std);
-    meanStdDev(im_float_2, im2_Mean, im2_Std);
+    meanStdDev(thresh_img1, im1_Mean, im1_Std);
+    meanStdDev(thresh_img2, im2_Mean, im2_Std);
 
-    double covar = (im_float_1 - im1_Mean).dot(im_float_2 - im2_Mean) / n_pixels;
+    double covar = (thresh_img1 - im1_Mean).dot(thresh_img2 - im2_Mean) / n_pixels;
     double correl = covar / (im1_Std[0] * im2_Std[0]);
 
     return correl;
@@ -41,7 +54,7 @@ double correlation(const cv::Mat &image_1, const cv::Mat &image_2) {
 
 std::vector<cv::Mat> getBoundingBoxes(const cv::Mat &img, int x1, int x2, int x3, int x4) {
 
-    cv::Mat scaled_img = img;
+    cv::Mat scaled_img = img.clone();
 
     cv::Mat scaled_gray_img;
     cv::cvtColor(scaled_img, scaled_gray_img, CV_BGR2GRAY);
@@ -112,18 +125,42 @@ std::vector<cv::Mat> getBoundingBoxes(const cv::Mat &img, int x1, int x2, int x3
 
     }
 
-    cv::imwrite("cont.jpg", scaled_img);
-
     std::sort(bRects.begin(), bRects.end(), compareRect);
     
     std::vector<cv::Mat> bboxes(bRects.size());
     for (int i = 0; i < bRects.size(); i++) {
-
-        bboxes[i] = scaled_img(bRects[i]);
+        cv::Rect rect_nobox(bRects[i].x, bRects[i].y, bRects[i].size().width, bRects[i].size().height);
+        bboxes[i] = img(rect_nobox);
     }
 
     std::cout << bboxes.size() << std::endl;
 
     return bboxes;
+
+}
+
+std::string getCharacter(const cv::Mat img) {
+
+    std::string characters[] = {"A", "B", "C", "D", "E",
+                                "F", "G", "H", "I", "J",
+                                "K", "L", "M", "N", "O",
+                                "P", "Q", "R", "S", "T",
+                                "U", "V", "X", "Y", "Z",
+                                "0", "1", "2", "3", "4",
+                                "5", "6", "7", "8", "9"};
+
+    std::string imgFold = "letters_numbers/"; 
+
+    for (int i = 0; i < NUM_CHARACTERS; i++) {
+
+        std::ostringstream path;
+        path << imgFold;
+        path << characters[i];
+        path << ".bmp";
+
+        cv::Mat character = cv::imread(path);
+    }
+
+    return "k";
 
 }
