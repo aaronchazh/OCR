@@ -1,10 +1,10 @@
 #include "cv.h"
 
-#define SRC_IMG "sign.jpg"
+#define SRC_IMG "wiki.png"
 
 int main() {
 
-	cv::Mat img = cv::imread(SRC_IMG);
+	const cv::Mat img = cv::imread(SRC_IMG);
 
 	if(!img.data) {
 

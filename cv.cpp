@@ -2,7 +2,7 @@
 
 #define THRESHOLD_VALUE 0
 
-void show(cv::Mat img, std::string windowName, int waitTime) {
+void show(const cv::Mat &img, std::string windowName, int waitTime) {
 
 	cv::namedWindow(windowName, CV_WINDOW_AUTOSIZE);
 	cv::imshow(windowName, img);
@@ -10,7 +10,7 @@ void show(cv::Mat img, std::string windowName, int waitTime) {
 	cv::destroyWindow(windowName);
 }
 
-bool compareRect(const cv::Rect r1, const cv::Rect r2) {
+bool compareRect(const cv::Rect &r1, const cv::Rect &r2) {
 
     if (abs((r1.y + r1.size().height) - (r2.y + r2.size().height)) > 20) {
 
@@ -20,7 +20,26 @@ bool compareRect(const cv::Rect r1, const cv::Rect r2) {
     return r1.x < r2.x;
 }
 
-std::vector<cv::Mat> getBoundingBoxes(cv::Mat img, int x1, int x2, int x3, int x4) {
+double correlation(const cv::Mat &image_1, const cv::Mat &image_2) {
+
+    cv::Mat im_float_1;
+    image_1.convertTo(im_float_1, CV_32F);
+    cv::Mat im_float_2;
+    image_2.convertTo(im_float_2, CV_32F);
+
+    int n_pixels = im_float_1.rows * im_float_1.cols;
+
+    cv::Scalar im1_Mean, im1_Std, im2_Mean, im2_Std;
+    meanStdDev(im_float_1, im1_Mean, im1_Std);
+    meanStdDev(im_float_2, im2_Mean, im2_Std);
+
+    double covar = (im_float_1 - im1_Mean).dot(im_float_2 - im2_Mean) / n_pixels;
+    double correl = covar / (im1_Std[0] * im2_Std[0]);
+
+    return correl;
+}
+
+std::vector<cv::Mat> getBoundingBoxes(const cv::Mat &img, int x1, int x2, int x3, int x4) {
 
     cv::Mat scaled_img = img;
 
@@ -34,9 +53,9 @@ std::vector<cv::Mat> getBoundingBoxes(cv::Mat img, int x1, int x2, int x3, int x
     cv::Mat thresh_img;
     threshold(grad_img, thresh_img, THRESHOLD_VALUE, 255, cv::THRESH_OTSU);
 
-    cv::Mat connected;
+    /*cv::Mat connected;
     kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(x3, x4));
-    cv::morphologyEx(thresh_img, connected, cv::MORPH_CLOSE, kernel);
+    cv::morphologyEx(thresh_img, connected, cv::MORPH_CLOSE, kernel);*/
 
     cv::Mat mask = cv::Mat::zeros(thresh_img.size(), CV_8UC1);
     std::vector<std::vector<cv::Point> > contours;
