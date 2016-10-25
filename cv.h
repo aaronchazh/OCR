@@ -11,7 +11,6 @@
 #include "opencv2/calib3d/calib3d.hpp"
 #include "opencv2/ml/ml.hpp"
 #include "opencv2/highgui/highgui.hpp"
-#include "opencv2/contrib/contrib.hpp"
 #include "opencv2/core/core_c.h"
 #include "opencv2/highgui/highgui_c.h"
 #include "opencv2/imgproc/imgproc_c.h"
@@ -22,7 +21,7 @@
 #include <sstream>
 
 void show(const cv::Mat &img, std::string windowName = "image", int waitTime = 0);
-std::vector<cv::Mat> getBoundingBoxes(const cv::Mat &img, int x1, int x2, int x3, int x4);
+std::vector<cv::Mat> getBoundingBoxes(const cv::Mat &img, int x1, int x2, int x3, int x4, const bool connect);
 bool compareRect(const cv::Rect &r1, const cv::Rect &r2);
 double correlation(cv::Mat image_1, cv::Mat image_2);
 std::string getCharacter(const cv::Mat img);
