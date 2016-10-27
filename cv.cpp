@@ -83,11 +83,11 @@ std::vector<cv::Mat> getBoundingBoxes(const cv::Mat &img, int x1, int x2, int x3
 
     if (connect) {
 
-        cv::findContours(connected, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
+        cv::findContours(connected, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
     }
     else {
 
-        cv::findContours(thresh_img, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
+        cv::findContours(thresh_img, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
     }
 
     std::vector<cv::Rect> bRects;
@@ -131,26 +131,22 @@ std::vector<cv::Mat> getBoundingBoxes(const cv::Mat &img, int x1, int x2, int x3
             bboxes.push_back(cropped);
         }
         */
-        if (connect) {
 
-            for(int j = hierarchy[idx][2]; j >= 0; j = hierarchy[j][0]) {
+        if (rect.size().width > 10 && rect.size().height > 10) {
 
-                if (rect.size().width > 10 && rect.size().height > 10) {
-
-                    cv::rectangle(scaled_img, rect, cv::Scalar(255,0,0));
-                    bRects.push_back(rect);
-                }
-            }
-        }
-        else {
-
-            if (rect.size().width > 10 && rect.size().height > 10) {
-
-                    cv::rectangle(scaled_img, rect, cv::Scalar(255,0,0));
-                    bRects.push_back(rect);
-            }
+                cv::rectangle(scaled_img, rect, cv::Scalar(255,0,0));
+                bRects.push_back(rect);
         }
     }
+
+    int size = bRects.size();
+
+    for (int i = 0; i < size; i++) {
+
+        bRects.push_back(cv::Rect(bRects[i]));
+    }
+
+    groupRectangles(bRects, 1, 0.2);
 
     std::sort(bRects.begin(), bRects.end(), compareRect);
     
