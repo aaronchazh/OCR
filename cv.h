@@ -1,4 +1,5 @@
 #ifndef _CV_
+
 #define _CV_
 
 #include "opencv2/core/core.hpp"
@@ -19,11 +20,15 @@
 #include <string>
 #include <algorithm>
 #include <sstream>
+#include <memory>
 
 void show(const cv::Mat &img, std::string windowName = "image", int waitTime = 0);
 std::vector<cv::Mat> getBoundingBoxes(const cv::Mat &img, int x1, int x2, int x3, int x4, const bool connect);
 bool compareRect(const cv::Rect &r1, const cv::Rect &r2);
 double correlation(cv::Mat image_1, cv::Mat image_2);
 std::string getCharacter(const cv::Mat img);
+std::string getCharacter_ML(const std::string path);
+bool rectContains(const cv::Rect &r1, const cv::Rect &r2);
+std::string bash(const char *cmd);
 
 #endif

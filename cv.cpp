@@ -3,6 +3,27 @@
 #define THRESHOLD_VALUE 0
 #define NUM_CHARACTERS 36
 
+std::string exec(const char* cmd) {
+    char buffer[128];
+    std::string result = "";
+    std::shared_ptr<FILE> pipe(popen(cmd, "r"), pclose);
+    if (!pipe) throw std::runtime_error("popen() failed!");
+    while (!feof(pipe.get())) {
+        if (fgets(buffer, 128, pipe.get()) != NULL)
+            result += buffer;
+    }
+    return result;
+}
+    
+std::string getCharacter_ML(const std::string path) {
+    std::stringstream cmdBuff;
+    cmdBuff << "python3 py/classify.py ";
+    cmdBuff << path;
+    const std::string tmp = cmdBuff.str();
+    const char* cmd = tmp.c_str();
+    return exec(cmd);
+}
+
 void show(const cv::Mat &img, std::string windowName, int waitTime) {
 
 	cv::namedWindow(windowName, CV_WINDOW_AUTOSIZE);
@@ -157,12 +178,26 @@ std::vector<cv::Mat> getBoundingBoxes(const cv::Mat &img, int x1, int x2, int x3
         bboxes[i] = img(rect_nobox);
     }
 
-    show(scaled_img);
+    //show(scaled_img);
 
     return bboxes;
 }
 
 std::string getCharacter(const cv::Mat img) {
+
+    cv::Mat bw;
+    cv::cvtColor(img, bw, CV_BGR2GRAY);
+
+    /*cv::Mat dst;
+    int channels[] = {0, 1};
+    int hbins = 30, sbins = 32;
+    int histSize[] = {hbins, sbins};
+    float hranges[] = { 0, 180 };
+    float sranges[] = { 0, 256 };
+    const float* ranges[] = { hranges, sranges };
+    cv::calcHist(&bw, 1, channels, cv::Mat(), dst, 2, histSize, ranges, true, false);
+
+    show(dst);*/
 
     std::string characters[] = {"A", "B", "C", "D", "E",
                                 "F", "G", "H", "I", "J",
