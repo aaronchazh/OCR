@@ -17,7 +17,7 @@ std::string exec(const char* cmd) {
     
 std::string getCharacter_ML(const std::string path) {
     std::stringstream cmdBuff;
-    cmdBuff << "python3 py/classify.py ";
+    cmdBuff << "python3 classifier/classify.py ";
     cmdBuff << path;
     const std::string tmp = cmdBuff.str();
     const char* cmd = tmp.c_str();
